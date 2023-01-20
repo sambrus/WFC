@@ -1,0 +1,187 @@
+#!/usr/bin/python3
+
+from pygame import *
+import random
+import time
+
+DIM = 20
+
+tiles = [image.load("polka/blank.png"), image.load("polka/up.png"), image.load("polka/right.png"),
+         image.load("polka/down.png"), image.load("polka/left.png")]
+
+BLANK = 0
+UP = 1
+RIGHT = 2
+DOWN = 3
+LEFT = 4
+
+solutions = [[[BLANK, UP],
+             [BLANK, RIGHT],
+             [BLANK, DOWN],
+             [BLANK, LEFT]],
+            [[RIGHT, LEFT, DOWN],
+         [LEFT, UP, DOWN],
+         [BLANK, DOWN],
+         [RIGHT, UP, DOWN]],
+        [[RIGHT, LEFT, DOWN],
+            [LEFT, UP, DOWN],
+            [RIGHT, LEFT, UP],
+            [BLANK, LEFT]],
+            [[BLANK, UP],
+            [LEFT, UP, DOWN],
+            [RIGHT, LEFT, UP],
+            [RIGHT, UP, DOWN]],
+            [[RIGHT, LEFT, DOWN],
+            [BLANK, RIGHT],
+            [RIGHT, LEFT, UP],
+            [UP, DOWN, RIGHT]]]
+
+grid = [[None for i in range(DIM)] for a in range(DIM)]
+for i in range(DIM):
+    for j in range(DIM):
+        grid[i][j] = {"collapsed": False, "options": [BLANK, UP, RIGHT, DOWN, LEFT]}
+
+for i in range(len(tiles)):
+    tiles[i] = transform.scale(tiles[i], (1920 / DIM, 1080 / DIM))
+
+
+def draw_tiles(screen):
+    for i in range(DIM):
+        for j in range(DIM):
+            if grid[i][j]["collapsed"]:
+                screen.blit(tiles[grid[i][j]["options"][0]], (1920 / DIM * j, 1080 / DIM * i))
+                display.flip()
+                time.sleep(0.001)
+
+
+def changeUp(tile_to_print):
+    type_of_tile = tile_to_print[0]["options"]
+    index_of_tile = (tile_to_print[1], tile_to_print[2])
+    wrong_options = [BLANK, UP, RIGHT, DOWN, LEFT]
+    if index_of_tile[0] == 0:
+        return
+    ind_general = index_of_tile[1] + index_of_tile[0] * DIM
+    if grid[index_of_tile[0] - 1][index_of_tile[1]]["collapsed"]:
+        return
+    valid_options = solutions[type_of_tile[0]][0]
+    for option in valid_options:
+        if option in wrong_options:
+            # print ("option a remove : {option}".format(option=option))
+            wrong_options.remove(option)
+    #print ("change up, tile_type : {type_of_tile}, wrong_options={w}, index={ind}".format(type_of_tile=type_of_tile, w=wrong_options, ind=ind_general - DIM))
+    for option in wrong_options:
+        if option in grid[index_of_tile[0] - 1][index_of_tile[1]]["options"]:
+            #print("on a enlevé {x} à l'indice {ind}".format(x=option, ind=ind_general - DIM))
+            grid[index_of_tile[0] - 1][index_of_tile[1]]["options"].remove(option)
+    #print(grid[ind_general - DIM]["options"])
+
+
+def changeRight(tile_to_print):
+    type_of_tile = tile_to_print[0]["options"]
+    index_of_tile = (tile_to_print[1], tile_to_print[2])
+    wrong_options = [BLANK, UP, RIGHT, DOWN, LEFT]
+    if index_of_tile[1] == DIM - 1:
+        return
+    ind_general = index_of_tile[1] + index_of_tile[0] * DIM
+    if grid[index_of_tile[0]][index_of_tile[1] + 1]["collapsed"]:
+        return
+    valid_options = solutions[type_of_tile[0]][1]
+    for option in valid_options:
+        if option in wrong_options:
+            wrong_options.remove(option)
+    #print ("change right, tile_type : {type_of_tile}, wrong_options={w}, index={ind}".format(type_of_tile=type_of_tile, w=wrong_options, ind=ind_general + 1))
+    for option in wrong_options:
+        if option in grid[index_of_tile[0]][index_of_tile[1] + 1]["options"]:
+            #print("on a enlevé {x} à l'indice {ind}".format(x=option, ind=ind_general + 1))
+            grid[index_of_tile[0]][index_of_tile[1] + 1]["options"].remove(option)
+    #print(grid[ind_general + 1]["options"])
+
+
+def changeDown(tile_to_print):
+    type_of_tile = tile_to_print[0]["options"]
+    index_of_tile = (tile_to_print[1], tile_to_print[2])
+    wrong_options = [BLANK, UP, RIGHT, DOWN, LEFT]
+    if index_of_tile[0] == DIM - 1:
+        return
+    ind_general = index_of_tile[1] + index_of_tile[0] * DIM
+    if grid[index_of_tile[0] + 1][index_of_tile[1]]["collapsed"]:
+        return
+    valid_options = solutions[type_of_tile[0]][2]
+    for option in valid_options:
+        if option in wrong_options:
+            wrong_options.remove(option)
+    #print ("change down, tile_type : {type_of_tile}, wrong_options={w}, index={ind}".format(type_of_tile=type_of_tile, w=wrong_options, ind=ind_general + DIM))
+    for option in wrong_options:
+        if option in grid[index_of_tile[0] + 1][index_of_tile[1]]["options"]:
+            #print("on a enlevé {x} à l'indice {ind}".format(x=option, ind=ind_general + DIM))
+            grid[index_of_tile[0] + 1][index_of_tile[1]]["options"].remove(option)
+    #print(grid[ind_general + DIM]["options"])
+
+
+def changeLeft(tile_to_print):
+    type_of_tile = tile_to_print[0]["options"]
+    index_of_tile = (tile_to_print[1], tile_to_print[2])
+    wrong_options = [BLANK, UP, RIGHT, DOWN, LEFT]
+    if index_of_tile[1] == 0:
+        return
+    ind_general = index_of_tile[1] + index_of_tile[0] * DIM
+    if grid[index_of_tile[0]][index_of_tile[1] - 1]["collapsed"]:
+        return
+    valid_options = solutions[type_of_tile[0]][3]
+    for option in valid_options:
+        if option in wrong_options:
+            wrong_options.remove(option)
+    #print ("change left, tile_type : {type_of_tile}, wrong_options={w}, index={ind}".format(type_of_tile=type_of_tile, w=wrong_options, ind=ind_general - 1))
+    for option in wrong_options:
+        if option in grid[index_of_tile[0]][index_of_tile[1] - 1]["options"]:
+            #print("on a enlevé {x} à l'indice {ind}".format(x=option, ind=ind_general - 1))
+            grid[index_of_tile[0]][index_of_tile[1] - 1]["options"].remove(option)
+    #print(grid[ind_general - 1]["options"])
+
+
+def set_entropy():
+    for i in range(DIM):
+        for j in range(DIM):
+            print("grid[{i}][{j}] = {g}".format(i=i, j=j, g=grid[i][j]))
+            if not grid[i][j]["collapsed"]:
+                option_min = len(grid[i][j]["options"])
+    copy_array = []
+    for i in range(DIM):
+        for j in range(DIM):
+            if len(grid[i][j]["options"]) < option_min and not grid[i][j]["collapsed"]:
+                option_min = len(grid[i][j]["options"])
+    for i in range(DIM):
+        for j in range(DIM):
+            if len(grid[i][j]["options"]) == option_min and not grid[i][j]["collapsed"]:
+                copy_array.append((grid[i][j], i, j))
+    tile_to_print = random.choice(copy_array)
+    tile_to_print[0]["collapsed"] = True
+    print(tile_to_print[0]["options"])
+    if len(tile_to_print[0]["options"]) == 0:
+        return
+    tile_to_print[0]["options"] = [random.choice(tile_to_print[0]["options"])]
+  #  print(tile_to_print)
+    #print("index : {x}, {y}, type de tile:{t}".format(x=tile_to_print[1], y=tile_to_print[2], t=tile_to_print[0]["options"][0]))
+    changeUp(tile_to_print)
+    changeRight(tile_to_print)
+    changeDown(tile_to_print)
+    changeLeft(tile_to_print)
+
+
+def main():
+    init()
+    screen = display.set_mode((1920, 1080))
+    for i in range(DIM * DIM):
+        set_entropy()
+    print(grid)
+    draw_tiles(screen)
+    # display.flip()
+    bool = True
+    while bool:
+        for i in event.get():
+            if i.type == QUIT:
+                bool = False
+
+
+if __name__ == '__main__':
+    main()
