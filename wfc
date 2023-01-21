@@ -144,7 +144,6 @@ def changeLeft(tile_to_print):
 def set_entropy():
     for i in range(size):
         for j in range(size):
-            print("grid[{i}][{j}] = {g}".format(i=i, j=j, g=grid[i][j]))
             if not grid[i][j]["collapsed"]:
                 option_min = len(grid[i][j]["options"])
     copy_array = []
@@ -171,7 +170,6 @@ def display_generation(screen):
     generate_grid()
     for i in range(size * size):
         set_entropy()
-    print(grid)
     draw_tiles(screen)
     bool = True
     chrono = time.time()
